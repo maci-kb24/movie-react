@@ -1,6 +1,7 @@
-import "./App.css";
 import { useState, useEffect } from "react";
+import "./App.css";
 import SearchIcon from "./search.svg";
+import MovieCard from "./MovieCard";
 
 const url = "https://moviesdatabase.p.rapidapi.com/titles/search/akas/";
 const options = {
@@ -12,20 +13,22 @@ const options = {
 };
 
 function App() {
-  const [movie, setMovie] = useState();
+  const [movies, setMovies] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    searchMovies("Batman");
+  }, []);
+
   const searchMovies = async (title) => {
     try {
-      const res = await fetch(url + title, options);
+      const res = await fetch(`${url}${title}`, options);
       const data = await res.json();
-      console.log(data.results);
+      setMovies(data.results);
     } catch (error) {
       console.error(error);
     }
   };
-
-  useEffect(() => {
-    searchMovies("Breaking Bad");
-  });
 
   return (
     <div className="app ">
@@ -33,22 +36,32 @@ function App() {
 
       <div className="search">
         <input
-          // value={searchTerm}
-          // onChange={(e) => setSearchTerm(e.target.value)}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search for movies"
         />
         <img
           src={SearchIcon}
           alt="search"
-          // onClick={() => searchMovies(searchTerm)}
+          onClick={() => searchMovies(searchTerm)}
         />
       </div>
 
-      <div className="container">
-        <div></div>
-      </div>
+      {movies?.length > 0 ? (
+        <div className="container">
+          {movies.map((movie) => (
+            <MovieCard movie={movie} />
+          ))}
+        </div>
+      ) : (
+        <div className="empty">
+          <h2>No movies found.</h2>
+        </div>
+      )}
     </div>
   );
 }
 
 export default App;
+
+// sea imam state movies, ovoj state ne se menuva, se tretura kako immutable poso e del od state, samo preku setter function setmovies. prvo loop preku movies.map da gi dobijam site filmovi, ondak mu dava prop movie na movie component instanca vo app.js, i go deconstruct vo movie component
